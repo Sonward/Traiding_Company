@@ -17,18 +17,32 @@ namespace DAL.Concrete
         {
             this.connectionString = connectionString;
         }
+        public CategoryDTO CreateCategory(CategoryDTO category)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand comm = conn.CreateCommand())
+            {
+                comm.CommandText = "insert into Category (categoryName) output INSERTED.CategoryId values (@name)";
+                comm.Parameters.Clear();
+                comm.Parameters.AddWithValue("@name", category.CategoryName);
+                conn.Open();
+
+                category.CategoryId = Convert.ToInt32(comm.ExecuteScalar());
+                return category;
+            }
+        }
         public CategoryDTO GetCategoryById(int id)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "select * from Category where Id = @id";
+                comm.CommandText = "select * from Category where CategoryId = @id";
                 comm.Parameters.Clear();
                 comm.Parameters.AddWithValue("@id", id);
                 conn.Open();
                 SqlDataReader reader = comm.ExecuteReader();
 
-                CategoryDTO category = new CategoryDTO { Id = (int)reader["Id"], Name = (string)reader["Name"] };
+                CategoryDTO category = new CategoryDTO { CategoryId = (int)reader["CategoryId"], CategoryName = (string)reader["CategoryName"] };
                 return category;
             }
         }
@@ -46,8 +60,8 @@ namespace DAL.Concrete
                 {
                     categories.Add(new CategoryDTO
                     {
-                        Id = (int)reader["Id"],
-                        Name = (string)reader["Name"] // може вибити помилку бо можливо має бути "[Name]"
+                        CategoryId = (int)reader["CategoryId"],
+                        CategoryName = (string)reader["CategoryName"]
                     });
                 }
 
@@ -57,37 +71,24 @@ namespace DAL.Concrete
         public CategoryDTO UpdateCategory(CategoryDTO category) // провірити особливо цю функцію
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "update Category set [Name] = @name where Id = @id";
+                comm.CommandText = "update Category set CategoryName = @name where CategoryId = @id";
                 comm.Parameters.Clear();
-                comm.Parameters.AddWithValue("@name", category.Name);
+                comm.Parameters.AddWithValue("@id", category.CategoryId);
+                comm.Parameters.AddWithValue("@name", category.CategoryName);
                 conn.Open();
 
-                category.Id = Convert.ToInt32(comm.ExecuteScalar());
-                return category;
-            }
-        }
-        public CategoryDTO CreateCategory(CategoryDTO category)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
-            {
-                comm.CommandText = "insert into Category ([Name]) output INSERTED.Id values (@name)";
-                comm.Parameters.Clear();
-                comm.Parameters.AddWithValue("@name",category.Name);
-                conn.Open();
-
-                category.Id = Convert.ToInt32(comm.ExecuteScalar());
+                category.CategoryId = Convert.ToInt32(comm.ExecuteScalar());
                 return category;
             }
         }
         public void DeleteteCategory(int id)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "delete from Category where Id = @id";
+                comm.CommandText = "delete from Category where CategoryId = @id";
                 comm.Parameters.Clear();
                 comm.Parameters.AddWithValue("@id", id);
                 conn.Open();

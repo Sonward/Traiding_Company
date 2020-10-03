@@ -21,9 +21,9 @@ namespace DAL.Concrete
         public CustomerDataDTO GetUserById(int id)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "select * from Customer_Data where Id = @id";
+                comm.CommandText = "select * from CustomerData where CustomerDataId = @id";
                 comm.Parameters.Clear();
                 comm.Parameters.AddWithValue("@id", id);
                 conn.Open();
@@ -31,14 +31,14 @@ namespace DAL.Concrete
 
                 CustomerDataDTO custData = new CustomerDataDTO
                 {
-                    Id = (int)reader["Id"],
-                    Cust_Name = (string)reader["Cust_Name"],
-                    Cust_Surame = (string)reader["Cust_Surame"],
-                    Cust_Email = (string)reader["Cust_Email"],
-                    Cust_Phone = (int)reader["Cust_Phone"],
-                    Cust_Address = (string)reader["Cust_Address"],
-                    Cust_Password = (SqlBinary)reader["Cust_Password"],
-                    Role_Id = (int)reader["Role_Id"]
+                    CustomerDataId = (int)reader["CustomerDataId"],
+                    CustName = (string)reader["CustName"],
+                    CustSurname = (string)reader["CustSurame"],
+                    CustEmail = (string)reader["CustEmail"],
+                    CustPhone = (int)reader["CustPhone"],
+                    CustAddress = (string)reader["CustAddress"],
+                    CustPassword = Encoding.ASCII.GetBytes(reader["CustPassword"].ToString()),
+                    RoleId = (int)reader["RoleId"]
                 };
                 return custData;
             }
@@ -46,9 +46,9 @@ namespace DAL.Concrete
         public List<CustomerDataDTO> GetAllUsers()
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "select * from Customer_Data";
+                comm.CommandText = "select * from CustomerData";
                 comm.Parameters.Clear();
                 conn.Open();
                 SqlDataReader reader = comm.ExecuteReader();
@@ -58,14 +58,14 @@ namespace DAL.Concrete
                 {
                     customers.Add(new CustomerDataDTO
                     {
-                        Id = (int)reader["Id"],
-                        Cust_Name = (string)reader["Cust_Name"],
-                        Cust_Surame = (string)reader["Cust_Surame"],
-                        Cust_Email = (string)reader["Cust_Email"],
-                        Cust_Phone = (int)reader["Cust_Phone"],
-                        Cust_Address = (string)reader["Cust_Address"],
-                        Cust_Password = (SqlBinary)reader["Cust_Password"],
-                        Role_Id = (int)reader["Role_Id"]
+                        CustomerDataId = (int)reader["CustomerDataId"],
+                        CustName = reader["CustName"].ToString(),
+                        CustSurname = reader["CustSurname"].ToString(),
+                        CustEmail = reader["CustEmail"].ToString(),
+                        CustPhone = (int)reader["CustPhone"],
+                        CustAddress = reader["CustAddress"].ToString(),
+                        CustPassword = Encoding.ASCII.GetBytes(reader["CustPassword"].ToString()),
+                        RoleId = (int)reader["RoleId"]
                     });
                 }
                 return customers;
@@ -74,50 +74,50 @@ namespace DAL.Concrete
         public CustomerDataDTO UpdateUser(CustomerDataDTO customer)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "update Customer_Data set Cust_Name = @name, Cust_Surname = @surname, Cust_Email = @email, Cust_Phone = @phone, Cust_Address = @address, Cust_Password = @password, Role_Id = @roleId where Id = @id";
+                comm.CommandText = "update CustomerData set CustName = @name, CustSurname = @surname, CustEmail = @email, CustPhone = @phone, CustAddress = @address, CustPassword = @password, RoleId = @roleId where CustomerDataId = @id";
                 comm.Parameters.Clear();
-                comm.Parameters.AddWithValue("@id", customer.Id);
-                comm.Parameters.AddWithValue("@name", customer.Cust_Name);
-                comm.Parameters.AddWithValue("@surname", customer.Cust_Surame);
-                comm.Parameters.AddWithValue("@email", customer.Cust_Email);
-                comm.Parameters.AddWithValue("@phone", customer.Cust_Phone);
-                comm.Parameters.AddWithValue("@address", customer.Cust_Address);
-                comm.Parameters.AddWithValue("@password", customer.Cust_Password);
-                comm.Parameters.AddWithValue("@roleId", customer.Role_Id);
+                comm.Parameters.AddWithValue("@id", customer.CustomerDataId);
+                comm.Parameters.AddWithValue("@name", customer.CustName);
+                comm.Parameters.AddWithValue("@surname", customer.CustSurname);
+                comm.Parameters.AddWithValue("@email", customer.CustEmail);
+                comm.Parameters.AddWithValue("@phone", customer.CustPhone);
+                comm.Parameters.AddWithValue("@address", customer.CustAddress);
+                comm.Parameters.AddWithValue("@password", customer.CustPassword);
+                comm.Parameters.AddWithValue("@roleId", customer.RoleId);
                 conn.Open();
 
-                customer.Id = Convert.ToInt32(comm.ExecuteScalar());
+                customer.CustomerDataId = Convert.ToInt32(comm.ExecuteScalar());
                 return customer;
             }
         }
         public CustomerDataDTO CreateUser(CustomerDataDTO customer)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "insert into Customer_Data (Cust_Name, Cust_Surname, Cust_Email, Cust_Phone, Cust_Address, Cust_Password, Role_Id) output INSERTED.Id values (@name, @surname, @email, @phone, @address, @password, @roleId)";
+                comm.CommandText = "insert into CustomerData (CustName, CustSurname, CustEmail, CustPhone, CustAddress, CustPassword, RoleId) output INSERTED.CustomerDataId values (@name, @surname, @email, @phone, @address, @password, @roleId)";
                 comm.Parameters.Clear();
-                comm.Parameters.AddWithValue("@name", customer.Cust_Name);
-                comm.Parameters.AddWithValue("@surname", customer.Cust_Surame);
-                comm.Parameters.AddWithValue("@email", customer.Cust_Email);
-                comm.Parameters.AddWithValue("@phone", customer.Cust_Phone);
-                comm.Parameters.AddWithValue("@address", customer.Cust_Address);
-                comm.Parameters.AddWithValue("@password", customer.Cust_Password);
-                comm.Parameters.AddWithValue("@roleId", customer.Role_Id);
+                comm.Parameters.AddWithValue("@name", customer.CustName);
+                comm.Parameters.AddWithValue("@surname", customer.CustSurname);
+                comm.Parameters.AddWithValue("@email", customer.CustEmail);
+                comm.Parameters.AddWithValue("@phone", customer.CustPhone);
+                comm.Parameters.AddWithValue("@address", customer.CustAddress);
+                comm.Parameters.AddWithValue("@password", customer.CustPassword);
+                comm.Parameters.AddWithValue("@roleId", customer.RoleId);
                 conn.Open();
 
-                customer.Id = Convert.ToInt32(comm.ExecuteScalar());
+                customer.CustomerDataId = Convert.ToInt32(comm.ExecuteScalar());
                 return customer;
             }
         }
         public  void DeleteUser(int id)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand comm = new SqlCommand())
+            using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "delete from Customer_Data where Id = @id";
+                comm.CommandText = "delete from CustomerData where CustomerDataId = @id";
                 comm.Parameters.Clear();
                 comm.Parameters.AddWithValue("@id", id);
                 conn.Open();
