@@ -18,9 +18,21 @@ namespace DAL.Tests
             CategoryDAL dal = new CategoryDAL(ConfigurationManager.ConnectionStrings["ITCDB"].ConnectionString);
             var result = dal.CreateCategory(new CategoryDTO
             {
-                Name = "Some Name"
+                CategoryName = "Some Name"
             });
-            Assert.IsTrue(result.Id != 0, "somethig goes wong...");
+            Assert.IsTrue(result.CategoryId != 0, "somethig goes wong...");
+        }
+
+        [Test]
+        public void GetAllCategoriesTest()
+        {
+            CategoryDAL dal = new CategoryDAL(ConfigurationManager.ConnectionStrings["ITCDB"].ConnectionString);
+            var result = dal.CreateCategory(new CategoryDTO
+            {
+                CategoryName = "Some Name"
+            });
+            var categories = dal.GetAllCategories();
+            Assert.AreEqual(1, categories.Count(x=>x.CategoryName == "Some Name"));
         }
 
         [TearDown]
