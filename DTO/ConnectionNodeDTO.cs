@@ -9,12 +9,12 @@ namespace DTO
 {
     public class ConnectionNodeDTO
     {
-        public int Id { get; set; }
-        public int Customer_Id { get; set; }
-        public int Item_Id { get; set; }
-        public int Quantity_of_Item { get; set; }
-        public SqlDateTime Time_of_Receipt { get; set; }
-        public SqlDateTime Sending_Time { get; set; }
-        public int Status_Id { get; set; }
+        public int ConnectionNodeId { get; set; }
+        public int CustomerDataId { get; set; }
+        public int ItemId { get; set; }
+        public int QuantityOfItem { get; set; }
+        public SqlDateTime TimeOfReceipt { get; set; }
+        public SqlDateTime SendingTime { get; set; }
+        public int StatusId { get; set; }
     }
 }
