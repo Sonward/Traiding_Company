@@ -12,7 +12,8 @@ namespace DAL.Intefaces
         CustomerDataDTO GetUserById(int id);
         List<CustomerDataDTO> GetAllUsers();
         CustomerDataDTO UpdateUser(CustomerDataDTO customer);
-        CustomerDataDTO CreateUser(int id);
+        CustomerDataDTO CreateUser(CustomerDataDTO customer);
         void DeleteUser(int id);
+        bool Login(string username, string password);
     }
 }
