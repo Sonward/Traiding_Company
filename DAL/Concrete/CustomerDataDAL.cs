@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -76,7 +77,9 @@ namespace DAL.Concrete
             using (SqlConnection conn = new SqlConnection(connectionString))
             using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "update CustomerData set CustName = @name, CustSurname = @surname, CustEmail = @email, CustPhone = @phone, CustAddress = @address, CustPassword = @password, RoleId = @roleId where CustomerDataId = @id";
+                Guid salt = Guid.NewGuid();
+                byte[] newPassword = hash(Encoding.ASCII.GetString(customer.CustPassword), customer.CustSalt.ToString());
+                comm.CommandText = "update CustomerData set CustName = @name, CustSurname = @surname, CustEmail = @email, CustPhone = @phone, CustAddress = @address, CustPassword = @password, CustSalt = @salt, RoleId = @roleId where CustomerDataId = @id";
                 comm.Parameters.Clear();
                 comm.Parameters.AddWithValue("@id", customer.CustomerDataId);
                 comm.Parameters.AddWithValue("@name", customer.CustName);
@@ -84,7 +87,8 @@ namespace DAL.Concrete
                 comm.Parameters.AddWithValue("@email", customer.CustEmail);
                 comm.Parameters.AddWithValue("@phone", customer.CustPhone);
                 comm.Parameters.AddWithValue("@address", customer.CustAddress);
-                comm.Parameters.AddWithValue("@password", customer.CustPassword);
+                comm.Parameters.AddWithValue("@password", newPassword);
+                comm.Parameters.AddWithValue("@salt", salt);
                 comm.Parameters.AddWithValue("@roleId", customer.RoleId);
                 conn.Open();
 
@@ -97,14 +101,17 @@ namespace DAL.Concrete
             using (SqlConnection conn = new SqlConnection(connectionString))
             using (SqlCommand comm = conn.CreateCommand())
             {
-                comm.CommandText = "insert into CustomerData (CustName, CustSurname, CustEmail, CustPhone, CustAddress, CustPassword, RoleId) output INSERTED.CustomerDataId values (@name, @surname, @email, @phone, @address, @password, @roleId)";
+                Guid salt = Guid.NewGuid();
+                byte[] newPassword = hash(Encoding.ASCII.GetString(customer.CustPassword), customer.CustSalt.ToString());
+                comm.CommandText = "insert into CustomerData (CustName, CustSurname, CustEmail, CustPhone, CustAddress, CustPassword, CustSalt, RoleId) output INSERTED.CustomerDataId values (@name, @surname, @email, @phone, @address, @password, @salt, @roleId)";
                 comm.Parameters.Clear();
                 comm.Parameters.AddWithValue("@name", customer.CustName);
                 comm.Parameters.AddWithValue("@surname", customer.CustSurname);
                 comm.Parameters.AddWithValue("@email", customer.CustEmail);
                 comm.Parameters.AddWithValue("@phone", customer.CustPhone);
                 comm.Parameters.AddWithValue("@address", customer.CustAddress);
-                comm.Parameters.AddWithValue("@password", customer.CustPassword);
+                comm.Parameters.AddWithValue("@password", newPassword);
+                comm.Parameters.AddWithValue("@salt", salt);
                 comm.Parameters.AddWithValue("@roleId", customer.RoleId);
                 conn.Open();
 
@@ -124,6 +131,37 @@ namespace DAL.Concrete
 
                 comm.ExecuteNonQuery();
             }
+        }
+
+        public bool Login(string username, string password)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand comm = conn.CreateCommand())
+            {
+                comm.CommandText = "select CustEmail, CustPassword, CustSalt from CustomerData where RoleId = 2 AND CustEmail = @email";
+                comm.Parameters.Clear();
+                comm.Parameters.AddWithValue("@email", username);
+                //comm.Parameters.AddWithValue("@password", hash(password, ));
+                conn.Open();
+
+                SqlDataReader reader = comm.ExecuteReader();
+                CustomerDataDTO custData = new CustomerDataDTO
+                {
+                    CustEmail = (string)reader["CustEmail"],
+                    CustPassword = Encoding.ASCII.GetBytes(reader["CustPassword"].ToString()),
+                    CustSalt = (System.Guid)reader["CustSalt"],
+                    RoleId = (int)reader["RoleId"]
+                };
+
+                
+                return custData.CustEmail != null && custData.CustPassword == hash(password, custData.CustSalt.ToString());
+            }
+        }
+
+        private byte[] hash(string password, string salt)
+        {
+            var alg = SHA512.Create();
+            return alg.ComputeHash(Encoding.UTF8.GetBytes(password + salt));
         }
     }
 }
