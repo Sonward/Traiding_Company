@@ -9,10 +9,10 @@ namespace DAL.Intefaces
 {
     public interface IRoleDAL
     {
-        RoleDTO GetItemById(int id);
-        List<RoleDTO> GetAllItems();
-        RoleDTO UpdateItem(ItemsDTO item);
-        RoleDTO CreateItem(ItemsDTO item);
+        RoleDTO CreateItem(RoleDTO role);
+        RoleDTO GetRoleById(int id);
+        List<RoleDTO> GetAllRoles();
+        RoleDTO UpdateRole(RoleDTO role);
         void DeleteItem(int id);
     }
 }
