@@ -11,6 +11,9 @@ namespace BuisnesLogicLayer.Interfaces
     {
         ConnectionNodeDTO AddNode(ConnectionNodeDTO node);
         List<ConnectionNodeDTO> GetListOfNodes();
+        List<CustomerDataDTO> GetListOfCustomers();
+        List<ItemDTO> GetListOfItems();
+        List<StatusDTO> GetListOfStatuses();
         ConnectionNodeDTO UpdateNode(ConnectionNodeDTO node);
         void DeleteNode(int custId, int itemId);
     }
