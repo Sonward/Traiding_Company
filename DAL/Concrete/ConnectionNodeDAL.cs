@@ -67,10 +67,53 @@ namespace DAL.Concrete
                         CustomerDataId = (int)reader["CustomerDataId"],
                         ItemId = (int)reader["ItemId"],
                         QuantityOfItem = (int)reader["QuantityOfItem"],
-                        SendingTime = (SqlDateTime)reader["SendingTime"],
-                        TimeOfReceipt = (SqlDateTime)reader["TimeOfReceipt"],
+                        TimeOfReceipt = (DateTime)reader["TimeOfReceipt"],
+                        //SendingTime = (DateTime)reader["SendingTime"],
+                        SendingTime = DateTime.Now,
                         StatusId = (int)reader["StatusId"]
                     });
+                }
+                reader.Close();
+
+                comm.CommandText = "select CustName, CustSurname from CustomerData";
+                reader = comm.ExecuteReader();
+                //conn.Open();
+                List<string> custNames = new List<string>();
+                while (reader.Read())
+                {
+                    custNames.Add((string)reader["CustName"] + " " + (string)reader["CustSurname"]);
+                }
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    nodes[i].CustomerName = custNames[nodes[i].CustomerDataId];
+                }
+                reader.Close();
+
+                comm.CommandText = "select ItemName from Item";
+                reader = comm.ExecuteReader();
+                //conn.Open();
+                List<string> itemNames = new List<string>();
+                while (reader.Read())
+                {
+                    itemNames.Add((string)reader["ItemName"]);
+                }
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    nodes[i].ItemName = itemNames[nodes[i].ItemId - 1];
+                }
+                reader.Close();
+
+                comm.CommandText = "select StatusName from Status";
+                reader = comm.ExecuteReader();
+                //conn.Open();
+                List<string> statusNames = new List<string>();
+                while (reader.Read())
+                {
+                    statusNames.Add((string)reader["StatusName"]);
+                }
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    nodes[i].StatusName = statusNames[nodes[i].StatusId - 1];
                 }
 
                 return nodes;
