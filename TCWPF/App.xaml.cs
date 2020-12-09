@@ -25,8 +25,6 @@ namespace TCWPF
 
             Container.RegisterInstance(ConfigurationManager.ConnectionStrings["ITCDB"].ConnectionString);
 
-            //Login lf = new Login(new ViewModels.LoginViewModel(new AuthManager(new CustomerDataDAL(ConfigurationManager.ConnectionStrings["ITCDB"].ConnectionString))));
-
             Login lf = Container.Resolve<Login>();
             bool result = lf.ShowDialog() ?? false;
             if (result)
@@ -40,11 +38,6 @@ namespace TCWPF
             {
                 Current.Shutdown();
             }
-
-            //OrdersList ol = Container.Resolve<OrdersList>();
-            //Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            //Current.MainWindow = ol;
-            //ol.Show();
         }
 
         private void RegisterUnity()
